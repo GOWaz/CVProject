@@ -1,69 +1,136 @@
 import tkinter as tk
+from tkinter import ttk
 from tkinter import filedialog
-from PIL import ImageTk, Image
+from PIL import Image, ImageTk
+import os
 
-# Global variables to store original and resized images
-original_image = None
-resized_image = None
-hint_image = None
-resized_hint = None
+class DesktopUI(tk.Tk):
+    def __init__(self):
+        super().__init__()
 
+        self.title("Desktop UI")
+        self.geometry("800x600")
 
-def open_image():
-    global original_image, resized_image
-    file_path = filedialog.askopenfilename()
-    if file_path:
-        original_image = Image.open(file_path)
-        resized_image = original_image.copy()
-        resized_image.thumbnail((300, 300))  # Resize for display
-        display_image(resized_image, image_label)
+        self.UPLOADED_PICTURE = None
+        self.UPLOADED_HINT = None
+        
 
-
-def open_hint():
-    global hint_image, resized_hint
-    file_path = filedialog.askopenfilename()
-    if file_path:
-        hint_image = Image.open(file_path)
-        resized_hint = hint_image.copy()
-        resized_hint.thumbnail((300, 300))  # Resize for display
-        display_image(resized_hint, hint_label)
+        # Left Sidebar
+        self.left_sidebar = tk.Frame(self, bg="grey", width=240)  # Adjusted width
+        self.left_sidebar.pack(side=tk.LEFT, fill=tk.Y)
 
 
-def display_image(img, label):
-    img = ImageTk.PhotoImage(img)
-    label.config(image=img)
-    label.image = img  # Keep a reference to the image to prevent garbage collection
+        # Main Content
+        self.main_content = tk.Frame(self, bg="white")
+        self.main_content.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
 
 
-def solve():
-    # Use 'original_image' and 'hint_image' for solving logic or any other processing
-    if original_image is not None and hint_image is not None:
-        # Example: Printing the dimensions of the original image and hint image
-        print("Original Image Dimensions:", original_image.size)
-        print("Hint Image Dimensions:", hint_image.size)
-        # Implement your solving logic here using 'original_image' and 'hint_image'
+        # # Canvas for displaying selected image
+        # self.canvas = tk.Canvas(self.main_content, bg="white", width=400, height=400)
+        # self.canvas.pack(pady=20)
+
+        self.canvas1 = tk.Canvas(self.main_content, bg="white", width=400, height=400)
+        self.canvas1.grid(row=0, column=0, pady=20, padx=20)
+
+        self.canvas2 = tk.Canvas(self.main_content, bg="white", width=400, height=400)
+        self.canvas2.grid(row=0, column=1, pady=20, padx=20)
+        
+
+        self.load_images()
+        
+        self.create_buttons()
+
+        self.unshow_button = ttk.Button(self, text="Unshow Image", command=self.unshow_image)
+        self.unshow_button.pack(side=tk.RIGHT, padx=10, pady=10)
+        self.unshow_button.pack_forget()  # Initially hidden
 
 
-# Create the main window
-root = tk.Tk()
-root.title("Image Solver")
 
-# Create labels to display images
-image_label = tk.Label(root)
-image_label.pack(side=tk.LEFT, padx=10, pady=10)
+    def load_images(self):
+        assets_folder = "assets/results"
+        if os.path.exists(assets_folder):
+            image_files = [f for f in os.listdir(assets_folder) if f.endswith(('.png', '.jpg', '.jpeg'))]
 
-hint_label = tk.Label(root)
-hint_label.pack(side=tk.RIGHT, padx=10, pady=10)
+            for image_file in image_files:
+                image_path = os.path.join(assets_folder, image_file)
+                image = Image.open(image_path)
+                image.thumbnail((200, 200))
+                tk_image = ImageTk.PhotoImage(image)
 
-# Create buttons
-upload_button = tk.Button(root, text="Upload Picture", command=open_image)
-upload_button.pack(padx=10, pady=5)
+                label = ttk.Label(self.left_sidebar, image=tk_image, padding=10)
+                label.image = tk_image
+                label.pack(anchor=tk.W)
 
-hint_button = tk.Button(root, text="Upload Hint", command=open_hint)
-hint_button.pack(padx=10, pady=5)
+                label.bind("<Button-1>", lambda event, path=image_path: self.show_image(path))
 
-solve_button = tk.Button(root, text="Solve", command=solve)
-solve_button.pack(padx=10, pady=5)
+    def show_image(self, image_path):
+        # Hide buttons and show the unshow button
+        # for child in self.main_content.winfo_children():
+        #     child.pack_forget()
 
-# Run the application
-root.mainloop()
+        # self.unshow_button.pack()
+
+        # Display the selected image on the canvas
+        image = Image.open(image_path)
+        image = image.resize((400, 400))
+        self.tk_image = ImageTk.PhotoImage(image)
+        self.canvas1.create_image(0, 0, anchor=tk.NW, image=self.tk_image)
+        self.canvas1.image = self.tk_image
+
+
+
+    def unshow_image(self):
+        # Clear canvas and show buttons
+        self.canvas.delete("all")
+        self.unshow_button.pack_forget()
+
+        # Show the buttons in the main content area
+        self.create_buttons()
+
+
+    def create_buttons(self):
+        plus_image = Image.open("assets/UI assets/plus.jpg")
+        plus_image.thumbnail((100, 100))
+        plus_tk_image = ImageTk.PhotoImage(plus_image)
+
+        btn1 = ttk.Button(self.main_content, text="Upload Picture", image=plus_tk_image, compound=tk.TOP, command=self.upload_picture)
+        btn1.image = plus_tk_image
+        btn1.grid(row=1, column=0, padx=(0, 20))
+
+        btn2 = ttk.Button(self.main_content, text="Upload Hint", image=plus_tk_image, compound=tk.TOP, command=self.upload_hint)
+        btn2.image = plus_tk_image
+        btn2.grid(row=1, column=1, padx=(20, 0))
+
+        btn3 = ttk.Button(self.main_content, text='Solve',command=self.solve)
+        btn3.grid(row=1, column=2, padx=(20, 0))
+   
+    
+
+    def upload_picture(self):
+        
+        file_path = filedialog.askopenfilename()
+        image = Image.open(file_path)
+        image = image.resize((400, 400))
+        self.tk_image = ImageTk.PhotoImage(image)
+        self.UPLOADED_PICTURE = self.tk_image
+        self.canvas1.create_image(0, 0, anchor=tk.NW, image=self.tk_image)
+        self.canvas1.image = self.tk_image
+
+
+    def upload_hint(self):
+        file_path = filedialog.askopenfilename()
+        image = Image.open(file_path)
+        image = image.resize((400, 400))
+        self.tk_image = ImageTk.PhotoImage(image)
+        self.UPLOADED_HINT = self.tk_image
+        self.canvas2.create_image(0, 0, anchor=tk.NW, image=self.tk_image)
+        self.canvas2.image = self.tk_image
+
+    def solve(self):
+        # use here UPLOADED_PICTURE & UPLOADED_HINT from up guys
+        None
+
+
+if __name__ == "__main__":
+    app = DesktopUI()
+    app.mainloop()        
