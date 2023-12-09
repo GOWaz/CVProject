@@ -4,26 +4,24 @@ from tkinter import filedialog
 from PIL import Image, ImageTk
 import os
 
+
 class DesktopUI(tk.Tk):
     def __init__(self):
         super().__init__()
 
         self.title("Desktop UI")
-        self.geometry("800x600")
+        self.geometry("1280x720")
 
         self.UPLOADED_PICTURE = None
         self.UPLOADED_HINT = None
-        
 
         # Left Sidebar
         self.left_sidebar = tk.Frame(self, bg="grey", width=240)  # Adjusted width
         self.left_sidebar.pack(side=tk.LEFT, fill=tk.Y)
 
-
         # Main Content
         self.main_content = tk.Frame(self, bg="white")
         self.main_content.pack(side=tk.RIGHT, fill=tk.BOTH, expand=True)
-
 
         # # Canvas for displaying selected image
         # self.canvas = tk.Canvas(self.main_content, bg="white", width=400, height=400)
@@ -34,17 +32,14 @@ class DesktopUI(tk.Tk):
 
         self.canvas2 = tk.Canvas(self.main_content, bg="white", width=400, height=400)
         self.canvas2.grid(row=0, column=1, pady=20, padx=20)
-        
 
         self.load_images()
-        
+
         self.create_buttons()
 
         self.unshow_button = ttk.Button(self, text="Unshow Image", command=self.unshow_image)
         self.unshow_button.pack(side=tk.RIGHT, padx=10, pady=10)
         self.unshow_button.pack_forget()  # Initially hidden
-
-
 
     def load_images(self):
         assets_folder = "assets/results"
@@ -77,8 +72,6 @@ class DesktopUI(tk.Tk):
         self.canvas1.create_image(0, 0, anchor=tk.NW, image=self.tk_image)
         self.canvas1.image = self.tk_image
 
-
-
     def unshow_image(self):
         # Clear canvas and show buttons
         self.canvas.delete("all")
@@ -87,27 +80,26 @@ class DesktopUI(tk.Tk):
         # Show the buttons in the main content area
         self.create_buttons()
 
-
     def create_buttons(self):
-        plus_image = Image.open("assets/UI assets/plus.jpg")
+        plus_image = Image.open("C:/Users/abdul/Desktop/CVProject/assets/UIAssets/plus.jpg")
         plus_image.thumbnail((100, 100))
         plus_tk_image = ImageTk.PhotoImage(plus_image)
 
-        btn1 = ttk.Button(self.main_content, text="Upload Picture", image=plus_tk_image, compound=tk.TOP, command=self.upload_picture)
+        btn1 = ttk.Button(self.main_content, text="Upload Picture", image=plus_tk_image, compound=tk.TOP,
+                          command=self.upload_picture)
         btn1.image = plus_tk_image
         btn1.grid(row=1, column=0, padx=(0, 20))
 
-        btn2 = ttk.Button(self.main_content, text="Upload Hint", image=plus_tk_image, compound=tk.TOP, command=self.upload_hint)
+        btn2 = ttk.Button(self.main_content, text="Upload Hint", image=plus_tk_image, compound=tk.TOP,
+                          command=self.upload_hint)
         btn2.image = plus_tk_image
         btn2.grid(row=1, column=1, padx=(20, 0))
 
-        btn3 = ttk.Button(self.main_content, text='Solve',command=self.solve)
+        btn3 = ttk.Button(self.main_content, text='Solve', command=self.solve)
         btn3.grid(row=1, column=2, padx=(20, 0))
-   
-    
 
     def upload_picture(self):
-        
+
         file_path = filedialog.askopenfilename()
         image = Image.open(file_path)
         image = image.resize((400, 400))
@@ -115,7 +107,6 @@ class DesktopUI(tk.Tk):
         self.UPLOADED_PICTURE = self.tk_image
         self.canvas1.create_image(0, 0, anchor=tk.NW, image=self.tk_image)
         self.canvas1.image = self.tk_image
-
 
     def upload_hint(self):
         file_path = filedialog.askopenfilename()
@@ -133,4 +124,4 @@ class DesktopUI(tk.Tk):
 
 if __name__ == "__main__":
     app = DesktopUI()
-    app.mainloop()        
+    app.mainloop()
