@@ -42,7 +42,7 @@ class DesktopUI(tk.Tk):
         self.unshow_button.pack_forget()  # Initially hidden
 
     def load_images(self):
-        assets_folder = "assets/results"
+        assets_folder = "results"
         if os.path.exists(assets_folder):
             image_files = [f for f in os.listdir(assets_folder) if f.endswith(('.png', '.jpg', '.jpeg'))]
 
@@ -81,7 +81,7 @@ class DesktopUI(tk.Tk):
         self.create_buttons()
 
     def create_buttons(self):
-        plus_image = Image.open("C:/Users/abdul/Desktop/CVProject/assets/UIAssets/plus.jpg")
+        plus_image = Image.open("assets/UIAssets/plus.jpg")
         plus_image.thumbnail((100, 100))
         plus_tk_image = ImageTk.PhotoImage(plus_image)
 
